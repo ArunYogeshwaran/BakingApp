@@ -3,4 +3,7 @@
     <string name="tap_to_see_details">Tap to see recipe steps</string>
     <string name="problem_loading_recipes">Problem loading recipes</string>
     <string name="check_connection">Please check your internet connection</string>
+    <string name="recipe_list">Recipe List</string>
+    <string name="ingredients">Ingredients</string>
+    <string name="steps">Steps</string>
 </resources>

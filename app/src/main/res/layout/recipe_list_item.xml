@@ -7,7 +7,7 @@
 
     <ImageView
         android:id="@+id/recipe_image_view"
-        android:layout_margin="10dp"
+        android:layout_margin="5dp"
         android:fadingEdge="horizontal"
         android:adjustViewBounds="true"
         android:layout_width="match_parent"

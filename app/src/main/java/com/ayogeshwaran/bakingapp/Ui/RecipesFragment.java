@@ -16,7 +16,9 @@ import android.widget.TextView;
 import com.ayogeshwaran.bakingapp.AppConstants;
 import com.ayogeshwaran.bakingapp.Data.Model.Recipe;
 import com.ayogeshwaran.bakingapp.Data.Model.Remote.RetrofitApiInterface;
+import com.ayogeshwaran.bakingapp.Interfaces.IOnItemClickedListener;
 import com.ayogeshwaran.bakingapp.R;
+import com.ayogeshwaran.bakingapp.Ui.Adapters.RecipeAdapter;
 import com.ayogeshwaran.bakingapp.Utils.ApiUtils;
 import com.ayogeshwaran.bakingapp.Utils.NetworkUtils;
 
@@ -28,18 +30,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static android.content.ContentValues.TAG;
+public class RecipesFragment extends Fragment implements IOnItemClickedListener {
 
-/**
- * Created by ayogeshwaran on 05/02/18.
- */
-
-public class RecipesFragment extends Fragment {
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
+    OnRecipeClickListener mCallback;
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -56,8 +49,14 @@ public class RecipesFragment extends Fragment {
 
     private RecipeAdapter recipeAdapter;
 
+    private List<Recipe> mRecipes;
+
     public RecipesFragment() {
 
+    }
+
+    public interface OnRecipeClickListener {
+        void onRecipeSelected(List<Recipe>recipes , int position);
     }
 
     @Nullable
@@ -75,6 +74,24 @@ public class RecipesFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            mCallback = (OnRecipeClickListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement OnImageClickListener");
+        }
+    }
+
+    @Override
+    public void OnItemClicked(int position) {
+//        Sending the callback to MainActivity
+        mCallback.onRecipeSelected(mRecipes, position);
+    }
+
     private void initViews() {
         RecyclerView.LayoutManager gridLayoutManager;
         gridLayoutManager = new GridLayoutManager(
@@ -84,7 +101,7 @@ public class RecipesFragment extends Fragment {
 
         recipesRecyclerView.setHasFixedSize(true);
 
-        recipeAdapter = new RecipeAdapter(getContext());
+        recipeAdapter = new RecipeAdapter(getContext(), this);
 
         recipesRecyclerView.setAdapter(recipeAdapter);
     }
@@ -119,7 +136,8 @@ public class RecipesFragment extends Fragment {
                 public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
                     if (response.isSuccessful()) {
                         showRecipesView();
-                        recipeAdapter.updateRecipes(response.body());
+                        mRecipes = response.body();
+                        recipeAdapter.updateRecipes(mRecipes);
                         Log.d("MainActivity", "posts loaded from API");
                     } else {
                         int statusCode = response.code();

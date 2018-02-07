@@ -1,4 +1,4 @@
-package com.ayogeshwaran.bakingapp.Ui;
+package com.ayogeshwaran.bakingapp.Ui.Adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ayogeshwaran.bakingapp.Data.Model.Recipe;
+import com.ayogeshwaran.bakingapp.Interfaces.IOnItemClickedListener;
 import com.ayogeshwaran.bakingapp.R;
 import com.squareup.picasso.Picasso;
 
@@ -23,14 +24,17 @@ import butterknife.ButterKnife;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdapterViewHolder> {
 
-    private final String tempURL = "https://images4.alphacoders.com/878/thumb-350-878402.jpg";
+    private final String imageURL = "https://images4.alphacoders.com/878/thumb-350-878402.jpg";
 
     private List<Recipe> mRecipes;
 
     private Context mContext;
 
-    public RecipeAdapter(Context context) {
+    private IOnItemClickedListener mOnItemClickedListener;
+
+    public RecipeAdapter(Context context, IOnItemClickedListener onItemClickedListener) {
         mContext = context;
+        mOnItemClickedListener = (IOnItemClickedListener) onItemClickedListener;
     }
 
     public void updateRecipes(List<Recipe> recipes) {
@@ -62,24 +66,19 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
         String recipeThumbNailPath = "";
 
         if (mRecipes != null) {
-            recipeThumbNailPath = mRecipes.get(position).getSteps().get(position).getVideoURL();
+            recipeThumbNailPath = mRecipes.get(position).getImage();
         }
 
-        Picasso.with(mContext).load(tempURL)
+        if (recipeThumbNailPath.isEmpty()) {
+            recipeThumbNailPath = imageURL;
+        }
+
+        Picasso.with(mContext).load(recipeThumbNailPath)
                 .placeholder(mContext.getDrawable(R.drawable.placeholder))
-                .error(mContext.getDrawable(R.drawable.error_placeholder))
+                .error(mContext.getDrawable(R.drawable.placeholder))
                 .into(holder.recipeImageView);
 
         holder.recipeNameTextView.setText(mRecipes.get(position).getName());
-
-//        if (!recipeThumbNailPath.isEmpty()) {
-//            try {
-//                Picasso.with(mContext).load(tempURL)
-//                        .into(holder.recipeImageView);
-//            } catch (Throwable throwable) {
-//                throwable.printStackTrace();
-//            }
-//        }
     }
 
     public class RecipeAdapterViewHolder extends RecyclerView.ViewHolder
@@ -101,11 +100,13 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
 
         @Override
         public void onClick(View view) {
+            int adapterPosition = getAdapterPosition();
 
+            mOnItemClickedListener.OnItemClicked(adapterPosition);
         }
     }
 
-    public static Bitmap retriveVideoFrameFromVideo(String videoPath)
+    public static Bitmap retrieveVideoFrameFromVideo(String videoPath)
             throws Throwable {
         Bitmap bitmap = null;
         MediaMetadataRetriever mediaMetadataRetriever = null;

@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Recipe implements Parcelable
@@ -19,10 +20,10 @@ public class Recipe implements Parcelable
     private String name;
     @SerializedName("ingredients")
     @Expose
-    private List<Ingredient> ingredients = null;
+    private List<Ingredient> ingredients = new ArrayList<>();
     @SerializedName("steps")
     @Expose
-    private List<Step> steps = null;
+    private List<Step> steps = new ArrayList<>();
     @SerializedName("servings")
     @Expose
     private Integer servings;
@@ -30,7 +31,7 @@ public class Recipe implements Parcelable
     @Expose
     private String image;
 
-    public final static Parcelable.Creator<Recipe> CREATOR = new Creator<Recipe>() {
+    public static final Parcelable.Creator<Recipe> CREATOR = new Creator<Recipe>() {
         @SuppressWarnings({"unchecked"})
         public Recipe createFromParcel(Parcel in) {
             return new Recipe(in);
@@ -41,6 +42,15 @@ public class Recipe implements Parcelable
         }
     };
 
+    /**
+     * No args constructor for use in serialization
+     *
+     */
+    public Recipe() {
+
+    }
+
+
     protected Recipe(Parcel in) {
         this.id = ((Integer) in.readValue((Integer.class.getClassLoader())));
         this.name = ((String) in.readValue((String.class.getClassLoader())));
@@ -48,13 +58,6 @@ public class Recipe implements Parcelable
         in.readList(this.steps, (Step.class.getClassLoader()));
         this.servings = ((Integer) in.readValue((Integer.class.getClassLoader())));
         this.image = ((String) in.readValue((String.class.getClassLoader())));
-    }
-
-    /**
-     * No args constructor for use in serialization
-     *
-     */
-    public Recipe() {
     }
 
     /**

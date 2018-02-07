@@ -14,13 +14,15 @@
         android:theme="@style/AppTheme">
 
         <activity android:name=".Ui.MainActivity"
-            android:label="Recipes">
+            android:label="@string/recipe_list">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+        <activity android:name=".Ui.RecipeDetailActivity" />
+
+    </application>
 </manifest>
