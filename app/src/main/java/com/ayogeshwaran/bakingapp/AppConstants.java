@@ -7,4 +7,6 @@ public class AppConstants {
 
     public static final String RECIPE_DETAIL_OBJECT = "recipe_parcel_data";
 
+    public static final String STEP_OBJECT = "step_parcel_data";
+
 }

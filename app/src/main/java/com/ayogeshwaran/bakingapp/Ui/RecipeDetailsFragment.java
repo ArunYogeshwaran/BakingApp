@@ -1,5 +1,6 @@
 package com.ayogeshwaran.bakingapp.Ui;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -25,6 +26,8 @@ import butterknife.ButterKnife;
 
 public class RecipeDetailsFragment extends Fragment implements IOnItemClickedListener {
 
+    OnStepClickListener mCallback;
+
     @BindView(R.id.ingredient_recycler_view)
     public RecyclerView ingredientRecyclerView;
 
@@ -45,6 +48,10 @@ public class RecipeDetailsFragment extends Fragment implements IOnItemClickedLis
 
     }
 
+    public interface OnStepClickListener {
+        void onStepSelected(Step step);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -57,6 +64,18 @@ public class RecipeDetailsFragment extends Fragment implements IOnItemClickedLis
         initViews();
 
         return rootView;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            mCallback = (OnStepClickListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement OnImageClickListener");
+        }
     }
 
     public void setRecipe(Recipe recipe) {
@@ -104,6 +123,6 @@ public class RecipeDetailsFragment extends Fragment implements IOnItemClickedLis
     public void OnItemClicked(int position) {
         Step step = mSteps.get(position);
 
-
+        mCallback.onStepSelected(step);
     }
 }

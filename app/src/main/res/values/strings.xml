@@ -6,4 +6,5 @@
     <string name="recipe_list">Recipe List</string>
     <string name="ingredients">Ingredients</string>
     <string name="steps">Steps</string>
+    <string name="no_video_found_for_this_step">No video for this step</string>
 </resources>

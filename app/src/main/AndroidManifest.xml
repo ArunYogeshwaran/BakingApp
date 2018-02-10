@@ -24,5 +24,7 @@
 
         <activity android:name=".Ui.RecipeDetailActivity" />
 
+        <activity android:name=".Ui.VideoActivity" />
+
     </application>
 </manifest>
