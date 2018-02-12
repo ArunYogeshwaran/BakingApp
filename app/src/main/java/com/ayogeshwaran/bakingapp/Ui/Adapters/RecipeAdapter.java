@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.ayogeshwaran.bakingapp.AppConstants;
 import com.ayogeshwaran.bakingapp.Data.Model.Recipe;
 import com.ayogeshwaran.bakingapp.Interfaces.IOnItemClickedListener;
 import com.ayogeshwaran.bakingapp.R;
@@ -23,8 +24,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdapterViewHolder> {
-
-    private final String imageURL = "https://images4.alphacoders.com/878/thumb-350-878402.jpg";
 
     private List<Recipe> mRecipes;
 
@@ -63,17 +62,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
 
     @Override
     public void onBindViewHolder(RecipeAdapterViewHolder holder, int position) {
-        String recipeThumbNailPath = "";
-
-        if (mRecipes != null) {
-            recipeThumbNailPath = mRecipes.get(position).getImage();
-        }
-
-        if (recipeThumbNailPath.isEmpty()) {
-            recipeThumbNailPath = imageURL;
-        }
-
-        Picasso.with(mContext).load(recipeThumbNailPath)
+        Picasso.with(mContext).load(AppConstants.imageURL)
                 .placeholder(mContext.getDrawable(R.drawable.placeholder))
                 .error(mContext.getDrawable(R.drawable.placeholder))
                 .into(holder.recipeImageView);

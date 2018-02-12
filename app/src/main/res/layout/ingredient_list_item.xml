@@ -14,15 +14,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
-            android:padding="10dp"
-            android:layout_margin="10dp"
-            android:ellipsize="marquee"
-            android:scrollHorizontally="true"
-            android:singleLine="true"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:freezesText="true"/>
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="10dp"
+            android:padding="10dp" />
 
         <TextView
             android:id="@+id/ingredient_quantity_text_view"
@@ -30,7 +26,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:padding="10dp"
-            android:layout_margin="10dp" />
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp" />
 
     </android.support.v7.widget.CardView>
 

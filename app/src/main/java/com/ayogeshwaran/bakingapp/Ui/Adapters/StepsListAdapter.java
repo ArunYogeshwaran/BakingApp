@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.ayogeshwaran.bakingapp.AppConstants;
 import com.ayogeshwaran.bakingapp.Data.Model.Recipe;
 import com.ayogeshwaran.bakingapp.Data.Model.Step;
 import com.ayogeshwaran.bakingapp.Interfaces.IOnItemClickedListener;
@@ -21,8 +22,6 @@ import butterknife.ButterKnife;
 
 public class StepsListAdapter extends
         RecyclerView.Adapter<StepsListAdapter.StepsListAdapterViewHolder> {
-
-    private final String imageURL = "https://images4.alphacoders.com/878/thumb-350-878402.jpg";
 
     private Context mContext;
 
@@ -52,16 +51,7 @@ public class StepsListAdapter extends
 
     @Override
     public void onBindViewHolder(StepsListAdapterViewHolder holder, int position) {
-        String videoThumbnailPath = "";
-
-        if (mSteps.get(position).getVideoURL() != null &&
-                !mSteps.get(position).getVideoURL().isEmpty()) {
-            videoThumbnailPath = mSteps.get(position).getVideoURL();
-        } else {
-            videoThumbnailPath = imageURL;
-        }
-
-        Picasso.with(mContext).load(videoThumbnailPath)
+        Picasso.with(mContext).load(AppConstants.imageURL)
                 .placeholder(mContext.getDrawable(R.drawable.placeholder))
                 .error(mContext.getDrawable(R.drawable.placeholder))
                 .into(holder.videoThumbailImageView);
