@@ -41,6 +41,6 @@ public class RecipeSwitchService extends IntentService {
         //Trigger data update to handle the ListView widgets and force a data refresh
         appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list_view);
         //Now update all widgets
-        RecipeWidgetProvider.updateAppWidget(this, appWidgetManager, appWidgetIds);
+//        RecipeWidgetProvider.updateAppWidget(this, appWidgetManager, appWidgetIds);
     }
 }

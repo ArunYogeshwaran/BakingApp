@@ -1,6 +1,7 @@
 package com.ayogeshwaran.bakingapp.Ui;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,6 +22,8 @@ import com.ayogeshwaran.bakingapp.R;
 import com.ayogeshwaran.bakingapp.Ui.Adapters.RecipeAdapter;
 import com.ayogeshwaran.bakingapp.Utils.ApiUtils;
 import com.ayogeshwaran.bakingapp.Utils.NetworkUtils;
+import com.ayogeshwaran.bakingapp.Utils.SharedPreferenceUtils;
+import com.google.gson.Gson;
 
 import java.util.List;
 
@@ -50,6 +53,8 @@ public class RecipesFragment extends Fragment implements IOnItemClickedListener 
     private RecipeAdapter recipeAdapter;
 
     private List<Recipe> mRecipes;
+
+    private SharedPreferences mPrefs;
 
     public RecipesFragment() {
 
@@ -125,6 +130,11 @@ public class RecipesFragment extends Fragment implements IOnItemClickedListener 
         recipeLoadingIndicator.setVisibility(View.INVISIBLE);
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+    }
+
     private void downloadRecipes() {
         if (NetworkUtils.isOnline(getContext())) {
             retrofitApiInterface = ApiUtils.getRetrofitClient(AppConstants.RECIPES_URL);
@@ -138,6 +148,7 @@ public class RecipesFragment extends Fragment implements IOnItemClickedListener 
                         showRecipesView();
                         mRecipes = response.body();
                         recipeAdapter.updateRecipes(mRecipes);
+                        insertRecipes(mRecipes);
                         Log.d("MainActivity", "posts loaded from API");
                     } else {
                         int statusCode = response.code();
@@ -155,6 +166,17 @@ public class RecipesFragment extends Fragment implements IOnItemClickedListener 
         } else {
             showError(getString(R.string.check_connection));
         }
+    }
+
+    public void insertRecipes(List<Recipe> recipes) {
+        mPrefs = SharedPreferenceUtils.getSharedPreferences(getActivity());
+
+        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(recipes);
+        prefsEditor.putString(AppConstants.RECIPE_WIDGET_INFO_KEY, json);
+        prefsEditor.apply();
+        prefsEditor.commit();
     }
 
     private static int getSpanCount(Context context) {

@@ -5,6 +5,6 @@
     android:initialLayout="@layout/recipe_widget_list_view"
     android:minWidth="286.0dp"
     android:minHeight="146.0dp"
-    android:resizeMode="vertical |horizontal"
+    android:resizeMode="vertical | horizontal"
     android:minResizeHeight="72.0dp"
     android:minResizeWidth="100.0dp" />

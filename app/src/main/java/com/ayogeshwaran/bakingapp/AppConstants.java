@@ -13,4 +13,14 @@ public class AppConstants {
 
     public static final String imageURL =
             "https://images4.alphacoders.com/878/thumb-350-878402.jpg";
+
+    public static final String RECIPE_WIDGET_PREFERENCE_FILE = "recipe_widget_preference_file";
+
+    public static final String RECIPE_WIDGET_INFO_KEY = "recipe_widget_info_key";
+
+    public static final String RECIPE_WIDGET_CURRENT_ITEM_KEY = "recipe_widget_item_key";
+
+    public static final int RECIPE_WIDGET_CURRENT_ITEM_MIN = 1;
+
+    public static final int RECIPE_WIDGET_CURRENT_ITEM_MAX = 4;
 }
