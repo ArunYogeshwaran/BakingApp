@@ -29,10 +29,10 @@ public class RecipeDetailsFragment extends Fragment implements IOnItemClickedLis
     private OnStepClickListener mCallback;
 
     @BindView(R.id.ingredient_recycler_view)
-    private RecyclerView ingredientRecyclerView;
+    public RecyclerView ingredientRecyclerView;
 
     @BindView(R.id.steps_recycler_view)
-    private RecyclerView stepsRecyclerView;
+    public RecyclerView stepsRecyclerView;
 
     private IngredientListAdapter ingredientListAdapter;
 

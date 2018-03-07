@@ -46,13 +46,13 @@ public class RecipesFragment extends Fragment implements IOnItemClickedListener,
     private static final String TAG = MainActivity.class.getSimpleName();
 
     @BindView(R.id.recipes_Recycler_View)
-    private RecyclerView recipesRecyclerView;
+    public RecyclerView recipesRecyclerView;
 
     @BindView(R.id.recipe_loading_indicator)
-    private ProgressBar recipeLoadingIndicator;
+    public ProgressBar recipeLoadingIndicator;
 
     @BindView(R.id.recipe_error_textview)
-    private TextView recipeErrorTextView;
+    public TextView recipeErrorTextView;
 
     private RecipeAdapter recipeAdapter;
 

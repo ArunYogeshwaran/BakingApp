@@ -26,7 +26,7 @@ public class StepsFragment extends Fragment implements IOnItemClickedListener {
     private OnStepClickListener mCallback;
 
     @BindView(R.id.steps_recycler_view)
-    private RecyclerView stepsRecyclerView;
+    public RecyclerView stepsRecyclerView;
 
     private Recipe mRecipe;
 

@@ -24,7 +24,7 @@ import butterknife.ButterKnife;
 public class IngredientsFragment extends Fragment {
 
     @BindView(R.id.ingredient_recycler_view)
-    private RecyclerView ingredientRecyclerView;
+    public RecyclerView ingredientRecyclerView;
 
     private Recipe mRecipe;
 

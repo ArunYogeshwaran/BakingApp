@@ -30,13 +30,13 @@ import butterknife.ButterKnife;
 
 public class VideoFragment extends Fragment {
     @BindView(R.id.playerView)
-    private SimpleExoPlayerView playerView;
+    public SimpleExoPlayerView playerView;
 
     @BindView(R.id.video_description_container)
-    private TextView videoDecriptiontextView;
+    public TextView videoDecriptiontextView;
 
     @BindView(R.id.no_video_textview)
-    private TextView noVideotextView;
+    public TextView noVideotextView;
 
     @BindView(R.id.video_loading_indicator)
     public ProgressBar videoLoadingProgressbar;
