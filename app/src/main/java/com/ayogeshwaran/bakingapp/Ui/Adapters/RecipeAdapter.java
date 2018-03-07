@@ -1,9 +1,6 @@
 package com.ayogeshwaran.bakingapp.Ui.Adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.media.MediaMetadataRetriever;
-import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +14,6 @@ import com.ayogeshwaran.bakingapp.Interfaces.IOnItemClickedListener;
 import com.ayogeshwaran.bakingapp.R;
 import com.squareup.picasso.Picasso;
 
-import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -33,7 +29,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
 
     public RecipeAdapter(Context context, IOnItemClickedListener onItemClickedListener) {
         mContext = context;
-        mOnItemClickedListener = (IOnItemClickedListener) onItemClickedListener;
+        mOnItemClickedListener = onItemClickedListener;
     }
 
     public void updateRecipes(List<Recipe> recipes) {
@@ -93,32 +89,5 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
 
             mOnItemClickedListener.OnItemClicked(adapterPosition);
         }
-    }
-
-    public static Bitmap retrieveVideoFrameFromVideo(String videoPath)
-            throws Throwable {
-        Bitmap bitmap = null;
-        MediaMetadataRetriever mediaMetadataRetriever = null;
-        try {
-            mediaMetadataRetriever = new MediaMetadataRetriever();
-            if (Build.VERSION.SDK_INT >= 14)
-                mediaMetadataRetriever.setDataSource(videoPath, new HashMap<String, String>());
-            else
-                mediaMetadataRetriever.setDataSource(videoPath);
-
-            bitmap = mediaMetadataRetriever.getFrameAtTime(1,
-                    MediaMetadataRetriever.OPTION_CLOSEST);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new Throwable(
-                    "Exception in retriveVideoFrameFromVideo(String videoPath)"
-                            + e.getMessage());
-
-        } finally {
-            if (mediaMetadataRetriever != null) {
-                mediaMetadataRetriever.release();
-            }
-        }
-        return bitmap;
     }
 }

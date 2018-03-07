@@ -3,6 +3,7 @@ package com.ayogeshwaran.bakingapp.Ui;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -18,6 +19,7 @@ import com.ayogeshwaran.bakingapp.AppConstants;
 import com.ayogeshwaran.bakingapp.Data.Model.Recipe;
 import com.ayogeshwaran.bakingapp.Data.Model.Remote.RetrofitApiInterface;
 import com.ayogeshwaran.bakingapp.Interfaces.IOnItemClickedListener;
+import com.ayogeshwaran.bakingapp.Interfaces.IProgressListener;
 import com.ayogeshwaran.bakingapp.R;
 import com.ayogeshwaran.bakingapp.Ui.Adapters.RecipeAdapter;
 import com.ayogeshwaran.bakingapp.Utils.ApiUtils;
@@ -33,28 +35,32 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class RecipesFragment extends Fragment implements IOnItemClickedListener {
+public class RecipesFragment extends Fragment implements IOnItemClickedListener, IProgressListener {
 
-    OnRecipeClickListener mCallback;
+    private static final int DELAY_MILLIS = 10000;
+
+    private OnRecipeClickListener mCallback;
+
+    private IProgressListener mProgressListener;
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
     @BindView(R.id.recipes_Recycler_View)
-    public RecyclerView recipesRecyclerView;
+    private RecyclerView recipesRecyclerView;
 
     @BindView(R.id.recipe_loading_indicator)
-    public ProgressBar recipeLoadingIndicator;
+    private ProgressBar recipeLoadingIndicator;
 
     @BindView(R.id.recipe_error_textview)
-    public TextView recipeErrorTextView;
-
-    private RetrofitApiInterface retrofitApiInterface;
+    private TextView recipeErrorTextView;
 
     private RecipeAdapter recipeAdapter;
 
     private List<Recipe> mRecipes;
 
-    private SharedPreferences mPrefs;
+    private final String RV_POSITION = "postion";
+
+    private Bundle mSavedInstanceState;
 
     public RecipesFragment() {
 
@@ -70,9 +76,15 @@ public class RecipesFragment extends Fragment implements IOnItemClickedListener 
                              @Nullable Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_recipes, container,
                 false);
+
         ButterKnife.bind(this, rootView);
 
         initViews();
+
+        if(savedInstanceState != null){
+            //to scroll to existing position which exist before rotation.
+            mSavedInstanceState = savedInstanceState;
+        }
 
         downloadRecipes();
 
@@ -85,10 +97,18 @@ public class RecipesFragment extends Fragment implements IOnItemClickedListener 
 
         try {
             mCallback = (OnRecipeClickListener) context;
+            mProgressListener = (IProgressListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
                     + " must implement OnImageClickListener");
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(RV_POSITION,
+                recipesRecyclerView.getLayoutManager().onSaveInstanceState());
     }
 
     @Override
@@ -98,15 +118,16 @@ public class RecipesFragment extends Fragment implements IOnItemClickedListener 
     }
 
     private void initViews() {
-        RecyclerView.LayoutManager gridLayoutManager;
-        gridLayoutManager = new GridLayoutManager(
+        RecyclerView.LayoutManager gridLayoutManager = new GridLayoutManager(
                 getContext(), 1);
 
         recipesRecyclerView.setLayoutManager(gridLayoutManager);
 
         recipesRecyclerView.setHasFixedSize(true);
 
-        recipeAdapter = new RecipeAdapter(getContext(), this);
+        if (recipeAdapter == null) {
+            recipeAdapter = new RecipeAdapter(getContext(), this);
+        }
 
         recipesRecyclerView.setAdapter(recipeAdapter);
     }
@@ -137,18 +158,22 @@ public class RecipesFragment extends Fragment implements IOnItemClickedListener 
 
     private void downloadRecipes() {
         if (NetworkUtils.isOnline(getContext())) {
-            retrofitApiInterface = ApiUtils.getRetrofitClient(AppConstants.RECIPES_URL);
+            RetrofitApiInterface retrofitApiInterface = ApiUtils.getRetrofitClient(AppConstants.RECIPES_URL);
 
             showLoading();
+            mProgressListener.onStarted();
 
             retrofitApiInterface.getRecipes().enqueue(new Callback<List<Recipe>>() {
                 @Override
-                public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
+                public void onResponse(@NonNull Call<List<Recipe>> call, @NonNull Response<List<Recipe>> response) {
                     if (response.isSuccessful()) {
                         showRecipesView();
                         mRecipes = response.body();
                         recipeAdapter.updateRecipes(mRecipes);
+                        restoreRecyclerViewState();
                         insertRecipes(mRecipes);
+
+                        mProgressListener.onDone();
                         Log.d("MainActivity", "posts loaded from API");
                     } else {
                         int statusCode = response.code();
@@ -157,7 +182,7 @@ public class RecipesFragment extends Fragment implements IOnItemClickedListener 
                 }
 
                 @Override
-                public void onFailure(Call<List<Recipe>> call, Throwable t) {
+                public void onFailure(@NonNull Call<List<Recipe>> call, @NonNull Throwable t) {
                     showError(getString(R.string.problem_loading_recipes));
                     Log.d(TAG, "error loading from API");
 
@@ -168,20 +193,39 @@ public class RecipesFragment extends Fragment implements IOnItemClickedListener 
         }
     }
 
-    public void insertRecipes(List<Recipe> recipes) {
-        mPrefs = SharedPreferenceUtils.getSharedPreferences(getActivity());
+    private void restoreRecyclerViewState() {
+        if (mSavedInstanceState != null) {
+            recipesRecyclerView.getLayoutManager().
+                    onRestoreInstanceState(mSavedInstanceState.getParcelable(RV_POSITION));
+        }
+    }
 
-        SharedPreferences.Editor prefsEditor = mPrefs.edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(recipes);
-        prefsEditor.putString(AppConstants.RECIPE_WIDGET_INFO_KEY, json);
-        prefsEditor.apply();
-        prefsEditor.commit();
+    private void insertRecipes(List<Recipe> recipes) {
+        SharedPreferences mPrefs = SharedPreferenceUtils.getSharedPreferences(getActivity());
+
+        if (mPrefs != null) {
+            SharedPreferences.Editor prefsEditor = mPrefs.edit();
+            Gson gson = new Gson();
+            String json = gson.toJson(recipes);
+            prefsEditor.putString(AppConstants.RECIPE_WIDGET_INFO_KEY, json);
+            prefsEditor.apply();
+            prefsEditor.commit();
+        }
     }
 
     private static int getSpanCount(Context context) {
         float density = context.getResources().getDisplayMetrics().density;
         float dpWidth = context.getResources().getDisplayMetrics().widthPixels / density;
         return Math.round(dpWidth / 200);
+    }
+
+    @Override
+    public void onStarted() {
+        mProgressListener.onStarted();
+    }
+
+    @Override
+    public void onDone() {
+        mProgressListener.onDone();
     }
 }

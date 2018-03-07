@@ -1,8 +1,6 @@
 package com.ayogeshwaran.bakingapp.Data.Model.Remote;
 
 
-import com.ayogeshwaran.bakingapp.AppConstants;
-
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 

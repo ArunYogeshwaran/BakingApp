@@ -22,11 +22,9 @@ public class RecipeWidgetService extends RemoteViewsService {
 
 class RecipeRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
-    Context mContext;
+    private Context mContext;
 
     private List<Ingredient> mIngredients;
-
-    private Recipe mRecipe;
 
     public RecipeRemoteViewsFactory(Context applicationContext) {
         mContext = applicationContext;
@@ -41,8 +39,8 @@ class RecipeRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory 
     public void onDataSetChanged() {
         int currentPosition = SharedPreferenceUtils.getSharedPreferences(mContext).getInt(
                 AppConstants.RECIPE_WIDGET_CURRENT_ITEM_KEY, 1);
-        mRecipe = SharedPreferenceUtils.getRecipeFromPreferences(
-                                   mContext,currentPosition - 1);
+        Recipe mRecipe = SharedPreferenceUtils.getRecipeFromPreferences(
+                mContext, currentPosition - 1);
         mIngredients = mRecipe.getIngredients();
     }
 
@@ -68,9 +66,9 @@ class RecipeRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory 
         remoteViews.setTextViewText(R.id.widget_ingredient_name_text_view,
                 mIngredients.get(position).getIngredient());
 
-        StringBuilder sb = new StringBuilder().append(mIngredients.get(position).getQuantity())
-                                    .append(mIngredients.get(position).getMeasure());
-        remoteViews.setTextViewText(R.id._widget_ingredient_quantity_text_view, sb.toString());
+        String sb = String.valueOf(mIngredients.get(position).getQuantity()) +
+                mIngredients.get(position).getMeasure();
+        remoteViews.setTextViewText(R.id._widget_ingredient_quantity_text_view, sb);
 
         return remoteViews;
     }

@@ -2,14 +2,13 @@ package com.ayogeshwaran.bakingapp.Ui.Adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.ayogeshwaran.bakingapp.Data.Model.Ingredient;
+import com.ayogeshwaran.bakingapp.Data.Model.Recipe;
 import com.ayogeshwaran.bakingapp.R;
 
 import java.util.List;
@@ -24,13 +23,18 @@ public class IngredientListAdapter
 
     private Context mContext;
 
-    public IngredientListAdapter(Context context) {
+    public IngredientListAdapter(Context context, Recipe recipe) {
         mContext = context;
+
+        if (recipe != null) {
+            mIngredients = recipe.getIngredients();
+            notifyDataSetChanged();
+        }
     }
 
-    public void updateIngredients(List<Ingredient> ingredients) {
-        mIngredients = ingredients;
-        notifyDataSetChanged();
+    public void updateIngredients(Recipe recipe) {
+//        mIngredients = recipe.getIngredients();
+//        notifyDataSetChanged();
     }
 
     @Override

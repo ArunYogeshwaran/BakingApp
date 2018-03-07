@@ -18,8 +18,6 @@ import com.ayogeshwaran.bakingapp.Utils.SharedPreferenceUtils;
 public class RecipeWidgetProvider extends AppWidgetProvider {
     private static Recipe currentRecipe;
 
-    private static SharedPreferences mPrefs;
-
     private static final String PREVIOUS_CLICKED = "previous_clicked";
 
     private static final String NEXT_CLICKED = "next_clicked";
@@ -38,7 +36,7 @@ public class RecipeWidgetProvider extends AppWidgetProvider {
         }
     }
 
-    public void updateAppWidgets(Context context, AppWidgetManager appWidgetManager,
+    private void updateAppWidgets(Context context, AppWidgetManager appWidgetManager,
                                   int[] appWidgetIds) {
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId);
@@ -54,7 +52,7 @@ public class RecipeWidgetProvider extends AppWidgetProvider {
     private RemoteViews getRecipeRemoteView(Context context) {
         remoteViews = new RemoteViews(context.getPackageName(), R.layout.recipe_widget_list_view);
 
-        mPrefs = SharedPreferenceUtils.getSharedPreferences(context);
+        SharedPreferences mPrefs = SharedPreferenceUtils.getSharedPreferences(context);
         int position = mPrefs.getInt(AppConstants.RECIPE_WIDGET_CURRENT_ITEM_KEY,
                 AppConstants.RECIPE_WIDGET_CURRENT_ITEM_MIN);
         currentRecipe = SharedPreferenceUtils.getRecipeFromPreferences(context, position - 1);

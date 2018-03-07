@@ -10,54 +10,48 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.ayogeshwaran.bakingapp.AppConstants;
 import com.ayogeshwaran.bakingapp.Data.Model.Step;
+import com.ayogeshwaran.bakingapp.ExoplayerVideoHandler;
 import com.ayogeshwaran.bakingapp.R;
-import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.ui.PlaybackControlView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class VideoFragment extends Fragment {
     @BindView(R.id.playerView)
-    public SimpleExoPlayerView playerView;
+    private SimpleExoPlayerView playerView;
 
     @BindView(R.id.video_description_container)
-    public TextView videoDecriptiontextView;
+    private TextView videoDecriptiontextView;
 
     @BindView(R.id.no_video_textview)
-    public TextView noVideotextView;
+    private TextView noVideotextView;
+
+    @BindView(R.id.video_loading_indicator)
+    public ProgressBar videoLoadingProgressbar;
+
+    @BindView(R.id.video_container)
+    public FrameLayout videoContainer;
 
     private Step mStep = new Step();
 
     private SimpleExoPlayer mExoPlayer;
 
-    private ExoPlayer.EventListener mCallback;
-
     private static final DefaultBandwidthMeter BANDWIDTH_METER =
             new DefaultBandwidthMeter();
 
-    private static final String TEST_URL = "https://www.youtube.com/watch?v=kxyAc_CP3EI&t=460s";
-
-    private static final int TEXT_VIEW_ID = 33;
-
-    private long playbackPosition = 0;
+    private long playbackPosition = C.TIME_UNSET;
 
     private int currentWindow = 0;
 
@@ -65,30 +59,50 @@ public class VideoFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_video, container, false);
 
+        setRetainInstance(true);
+
         ButterKnife.bind(this, rootView);
+
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(AppConstants.STEP_OBJECT)) {
+                mStep = savedInstanceState.getParcelable(AppConstants.STEP_OBJECT);
+            }
+        }
 
         initViews();
 
         return rootView;
     }
 
-    private void initViews() {
-        videoDecriptiontextView.setText(mStep.getDescription());
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
 
-        playerView.hideController();
-        playerView.setControllerVisibilityListener(new PlaybackControlView.VisibilityListener() {
-            @Override
-            public void onVisibilityChange(int visibility) {
-                if (visibility == 0) {
-                    playerView.showController();
-                } else {
-                    playerView.hideController();
+        outState.putParcelable(AppConstants.STEP_OBJECT, mStep);
+    }
+
+
+    private void initViews() {
+        if (mStep != null) {
+            videoDecriptiontextView.setText(mStep.getDescription());
+
+            playerView.hideController();
+            playerView.setControllerVisibilityListener(new PlaybackControlView.VisibilityListener() {
+                @Override
+                public void onVisibilityChange(int visibility) {
+                    if (visibility == 0) {
+                        playerView.showController();
+                    } else {
+                        playerView.hideController();
+                    }
                 }
-            }
-        });
+            });
+        }
+
         initializePlayer();
     }
 
@@ -97,7 +111,7 @@ public class VideoFragment extends Fragment {
         super.onAttach(context);
 
         try {
-            mCallback = (ExoPlayer.EventListener) context;
+            ExoPlayer.EventListener mCallback = (ExoPlayer.EventListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
                     + " must implement OnImageClickListener");
@@ -105,18 +119,15 @@ public class VideoFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        if (Util.SDK_INT > 23) {
-            initializePlayer();
-        }
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
-        if ((Util.SDK_INT <= 23 || mExoPlayer == null)) {
-            initializePlayer();
+        if (mStep != null) {
+            String videoUrl = mStep.getVideoURL();
+            if(videoUrl != null && playerView != null){
+                ExoplayerVideoHandler.getInstance()
+                        .prepareExoPlayerForUri(getContext(), Uri.parse(videoUrl), playerView);
+                ExoplayerVideoHandler.getInstance().goToForeground();
+            }
         }
     }
 
@@ -133,22 +144,11 @@ public class VideoFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if (Util.SDK_INT <= 23) {
-            releasePlayer();
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (Util.SDK_INT > 23) {
-            releasePlayer();
-        }
+        ExoplayerVideoHandler.getInstance().goToBackground();
     }
 
     @Override
     public void onDestroy() {
-        releasePlayer();
         super.onDestroy();
     }
 
@@ -157,30 +157,19 @@ public class VideoFragment extends Fragment {
     }
 
     private void initializePlayer() {
-        if (mExoPlayer == null) {
-            TrackSelection.Factory adaptiveTrackSelectionFactory =
-                    new AdaptiveVideoTrackSelection.Factory(BANDWIDTH_METER);
-
-            // Create an instance of the ExoPlayer.
-            LoadControl loadControl = new DefaultLoadControl();
-            mExoPlayer = ExoPlayerFactory.newSimpleInstance(getContext(),
-                    new DefaultTrackSelector(adaptiveTrackSelectionFactory), loadControl);
-            showPlayerView();
-            playerView.setPlayer(mExoPlayer);
-
-            mExoPlayer.setPlayWhenReady(true);
-            mExoPlayer.seekTo(0);
-            mExoPlayer.addListener(mCallback);
-
-            Uri uri = Uri.parse("");
-            if (!TextUtils.isEmpty(mStep.getVideoURL())) {
-                uri = Uri.parse(mStep.getVideoURL());
-            } else {
+        if (mStep != null) {
+            if (TextUtils.isEmpty(mStep.getVideoURL())) {
                 showNoVideoView();
+            } else {
+                showPlayerView();
+                String videoUrl = mStep.getVideoURL();
+                if(videoUrl != null && playerView != null) {
+                    ExoplayerVideoHandler.getInstance()
+                            .prepareExoPlayerForUri(getContext(),
+                                    Uri.parse(videoUrl), playerView);
+                    ExoplayerVideoHandler.getInstance().goToForeground();
+                }
             }
-
-            MediaSource mediaSource = buildMediaSource(uri);
-            mExoPlayer.prepare(mediaSource, true, false);
         }
     }
 
@@ -192,26 +181,6 @@ public class VideoFragment extends Fragment {
     private void showNoVideoView() {
         noVideotextView.setVisibility(View.VISIBLE);
         playerView.setVisibility(View.INVISIBLE);
-    }
-
-    private MediaSource buildMediaSource(Uri uri) {
-        return new ExtractorMediaSource(uri, new DefaultHttpDataSourceFactory("exoplayer"),
-                new DefaultExtractorsFactory(), null, null);
-    }
-
-    private void releasePlayer() {
-        if (mExoPlayer != null) {
-            playbackPosition = mExoPlayer.getCurrentPosition();
-            currentWindow = mExoPlayer.getCurrentWindowIndex();
-            playWhenReady = mExoPlayer.getPlayWhenReady();
-            mExoPlayer.release();
-            mExoPlayer = null;
-        }
-    }
-
-//    INTERFACE
-    public interface IOnVideoTapped {
-        void videoTapped(int state);
     }
 }
 

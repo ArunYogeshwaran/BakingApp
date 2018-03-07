@@ -31,11 +31,11 @@ public class StepsListAdapter extends
 
     public StepsListAdapter(Context context, IOnItemClickedListener onItemClickedListener) {
         mContext = context;
-        mOnItemClickedListener = (IOnItemClickedListener) onItemClickedListener;
+        mOnItemClickedListener = onItemClickedListener;
     }
 
-    public void updateSteps(List<Step> steps) {
-        mSteps = steps;
+    public void updateSteps(Recipe recipe) {
+        mSteps = recipe.getSteps();
         notifyDataSetChanged();
     }
 

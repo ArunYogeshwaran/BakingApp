@@ -1,6 +1,5 @@
 package com.ayogeshwaran.bakingapp.Utils;
 
-import com.ayogeshwaran.bakingapp.AppConstants;
 import com.ayogeshwaran.bakingapp.Data.Model.Remote.RetrofitApiInterface;
 import com.ayogeshwaran.bakingapp.Data.Model.Remote.RetrofitClient;
 

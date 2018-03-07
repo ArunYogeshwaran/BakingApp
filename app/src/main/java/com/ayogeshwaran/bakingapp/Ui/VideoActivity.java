@@ -22,9 +22,6 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_video);
-        ButterKnife.bind(this);
-
         if (getIntent() != null) {
             if (getIntent().hasExtra(AppConstants.STEP_OBJECT)) {
                 mStep = getIntent().getParcelableExtra(AppConstants.STEP_OBJECT);
@@ -35,6 +32,9 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
     }
 
     private void initViews() {
+        setContentView(R.layout.activity_video);
+        ButterKnife.bind(this);
+
         getSupportActionBar().setTitle(mStep.getShortDescription());
 
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -42,7 +42,7 @@ public class VideoActivity extends AppCompatActivity implements ExoPlayer.EventL
         videoFragment.setStep(mStep);
 
         fragmentManager.beginTransaction()
-                .add(R.id.video_fragment, videoFragment)
+                .add(R.id.video_container, videoFragment)
                 .commit();
     }
 

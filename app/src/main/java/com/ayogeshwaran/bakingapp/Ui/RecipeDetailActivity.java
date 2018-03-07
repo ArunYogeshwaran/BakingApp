@@ -2,16 +2,19 @@ package com.ayogeshwaran.bakingapp.Ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.FrameLayout;
 
 import com.ayogeshwaran.bakingapp.AppConstants;
 import com.ayogeshwaran.bakingapp.Data.Model.Ingredient;
 import com.ayogeshwaran.bakingapp.Data.Model.Recipe;
 import com.ayogeshwaran.bakingapp.Data.Model.Step;
 import com.ayogeshwaran.bakingapp.R;
+import com.ayogeshwaran.bakingapp.Ui.Adapters.RecipeDetailsPagerAdapter;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Timeline;
@@ -20,19 +23,23 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 
 import java.util.List;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class RecipeDetailActivity extends AppCompatActivity
-        implements RecipeDetailsFragment.OnStepClickListener, ExoPlayer.EventListener {
+        implements StepsFragment.OnStepClickListener, ExoPlayer.EventListener {
 
     private Recipe mRecipe;
 
-    private List<Ingredient> mIngredient;
-
-    private List<Step> mStep;
+    private Step mCurrentStep;
 
     private boolean mTwoPane = false;
+
+    private ViewPager viewPager;
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,34 +47,73 @@ public class RecipeDetailActivity extends AppCompatActivity
 
         mRecipe = getIntent().getParcelableExtra(AppConstants.RECIPE_DETAIL_OBJECT);
 
-        mIngredient = mRecipe.getIngredients();
+        List<Ingredient> mIngredient = mRecipe.getIngredients();
 
-        mStep = mRecipe.getSteps();
+        List<Step> mStep = mRecipe.getSteps();
 
         initViews(savedInstanceState);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelable(AppConstants.STEP_OBJECT, mCurrentStep);
     }
 
     private void initViews(Bundle savedInstanceState) {
         setContentView(R.layout.activity_recipe_detail);
         ButterKnife.bind(this);
 
-        if (savedInstanceState == null) {
-            getSupportActionBar().setTitle(mRecipe.getName());
+        viewPager = findViewById(R.id.recipe_detail_viewpager);
+        TabLayout tabLayout = findViewById(R.id.recipe_detail_tabs);
+
+        setupViewPager();
+        tabLayout.setupWithViewPager(viewPager);
+
+        getSupportActionBar().setTitle(mRecipe.getName());
+
+        if (findViewById(R.id.video_container_second_pane) != null) {
+            mTwoPane = true;
 
             FragmentManager fragmentManager = getSupportFragmentManager();
-            RecipeDetailsFragment recipeDetailsFragment = new RecipeDetailsFragment();
-            recipeDetailsFragment.setRecipe(mRecipe);
-
+            VideoFragment videoFragment = new VideoFragment();
+            if (savedInstanceState != null) {
+                if (savedInstanceState.containsKey(AppConstants.STEP_OBJECT)) {
+                    mCurrentStep = savedInstanceState.getParcelable(AppConstants.STEP_OBJECT);
+                    videoFragment.setStep(mCurrentStep);
+                }
+            }
             fragmentManager.beginTransaction()
-                    .add(R.id.recipe_details_list_container, recipeDetailsFragment)
+                    .replace(R.id.video_container_second_pane, videoFragment)
                     .commit();
-        }
-
-        if (findViewById(R.id.video_fragment) != null) {
-            mTwoPane = true;
         } else {
             mTwoPane = false;
         }
+
+        IngredientsFragment ingredientsFragment = new IngredientsFragment();
+        ingredientsFragment.setRecipe(mRecipe);
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .add(R.id.recipe_details_list_container, ingredientsFragment)
+                .commit();
+    }
+
+    private void setupViewPager() {
+        RecipeDetailsPagerAdapter recipeDetailsPagerAdapter = new RecipeDetailsPagerAdapter(getSupportFragmentManager());
+
+        IngredientsFragment ingredientsFragment = new IngredientsFragment();
+        ingredientsFragment.setRecipe(mRecipe);
+        recipeDetailsPagerAdapter.addFragment(ingredientsFragment, getString(R.string.ingredients),
+                mRecipe);
+
+        StepsFragment stepsFragment = new StepsFragment();
+        stepsFragment.setRecipe(mRecipe);
+        recipeDetailsPagerAdapter.addFragment(stepsFragment, getString(R.string.steps),
+                mRecipe);
+
+        this.viewPager.setAdapter(recipeDetailsPagerAdapter);
     }
 
     @Override
@@ -77,13 +123,14 @@ public class RecipeDetailActivity extends AppCompatActivity
             videoIntent.putExtra(AppConstants.STEP_OBJECT, step);
             startActivity(videoIntent);
         } else {
+            mCurrentStep = step;
+
             FragmentManager fragmentManager = getSupportFragmentManager();
             VideoFragment videoFragment = new VideoFragment();
             videoFragment.setStep(step);
 
-
             fragmentManager.beginTransaction()
-                    .replace(R.id.video_fragment, videoFragment)
+                    .replace(R.id.video_container_second_pane, videoFragment)
                     .commit();
         }
     }

@@ -13,8 +13,8 @@ import java.util.List;
 
 public class SharedPreferenceUtils {
     public static Recipe getRecipeFromPreferences(Context context, int position) {
-        String jsonFromPreferences = getSharedPreferences(context)
-                .getString(AppConstants.RECIPE_WIDGET_INFO_KEY, "");
+        String jsonFromPreferences = getSharedPreferences(context).getString(
+                AppConstants.RECIPE_WIDGET_INFO_KEY, "");
 
         Type collectionType = new TypeToken<List<Recipe>>(){}.getType();
         List<Recipe> recipes = new Gson().fromJson(jsonFromPreferences, collectionType);
@@ -27,9 +27,12 @@ public class SharedPreferenceUtils {
     }
 
     public static SharedPreferences getSharedPreferences(Context context) {
-        SharedPreferences preferences = context.getSharedPreferences
-                (AppConstants.RECIPE_WIDGET_PREFERENCE_FILE, Context.MODE_PRIVATE);
+        if (context != null) {
+            SharedPreferences preferences = context.getSharedPreferences
+                    (AppConstants.RECIPE_WIDGET_PREFERENCE_FILE, Context.MODE_PRIVATE);
 
-        return preferences;
+            return preferences;
+        }
+        return null;
     }
 }
