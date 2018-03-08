@@ -47,10 +47,6 @@ public class RecipeDetailActivity extends AppCompatActivity
 
         mRecipe = getIntent().getParcelableExtra(AppConstants.RECIPE_DETAIL_OBJECT);
 
-        List<Ingredient> mIngredient = mRecipe.getIngredients();
-
-        List<Step> mStep = mRecipe.getSteps();
-
         initViews(savedInstanceState);
     }
 

@@ -19,8 +19,6 @@ import butterknife.ButterKnife;
 public class MainActivity extends AppCompatActivity implements
         RecipesFragment.OnRecipeClickListener, IProgressListener {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
-
     private SimpleIdlingResource mSimpleIdlingResource;
 
     @Override
@@ -33,10 +31,6 @@ public class MainActivity extends AppCompatActivity implements
     private void initViews() {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-    }
-
-    public void setRecipes(List<Recipe> recipes) {
-        List<Recipe> mRecipes = recipes;
     }
 
     @Override

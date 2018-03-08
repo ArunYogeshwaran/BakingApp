@@ -73,7 +73,6 @@ public class IngredientsFragment extends Fragment {
     public void setRecipe(Recipe recipe) {
         if (recipe != null) {
             mRecipe = recipe;
-            List<Ingredient> mIngredients = recipe.getIngredients();
         }
     }
 
