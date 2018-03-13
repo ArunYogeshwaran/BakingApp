@@ -51,10 +51,17 @@ public class StepsListAdapter extends
 
     @Override
     public void onBindViewHolder(StepsListAdapterViewHolder holder, int position) {
-        Picasso.with(mContext).load(AppConstants.imageURL)
-                .placeholder(mContext.getDrawable(R.drawable.placeholder))
-                .error(mContext.getDrawable(R.drawable.placeholder))
-                .into(holder.videoThumbailImageView);
+        if (mSteps.get(position).getThumbnailURL().isEmpty()) {
+            Picasso.with(mContext).load(AppConstants.imageURL)
+                    .placeholder(mContext.getDrawable(R.drawable.placeholder))
+                    .error(mContext.getDrawable(R.drawable.placeholder))
+                    .into(holder.videoThumbailImageView);
+        } else {
+            Picasso.with(mContext).load(mSteps.get(position).getThumbnailURL())
+                    .placeholder(mContext.getDrawable(R.drawable.placeholder))
+                    .error(mContext.getDrawable(R.drawable.placeholder))
+                    .into(holder.videoThumbailImageView);
+        }
 
         holder.stepDescTextView.setText(String.valueOf(position) + ". ");
         holder.stepDescTextView.append(mSteps.get(position).getShortDescription());

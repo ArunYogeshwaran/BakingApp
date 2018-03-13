@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.view.SurfaceView;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.LoadControl;
@@ -27,6 +28,8 @@ public class ExoplayerVideoHandler
 
     private SimpleExoPlayer mExoPlayer;
 
+    private long mCurrentPosition = C.TIME_UNSET;
+
     public static ExoplayerVideoHandler getInstance(){
         if(instance == null){
             instance = new ExoplayerVideoHandler();
@@ -34,19 +37,19 @@ public class ExoplayerVideoHandler
         return instance;
     }
 
-    private Uri playerUri;
+    private Uri currentPlayerUri;
 
     private boolean isPlayerPlaying;
 
     private ExoplayerVideoHandler(){}
 
     public void prepareExoPlayerForUri(Context context, Uri uri,
-                                       SimpleExoPlayerView exoPlayerView){
-        if(context != null && uri != null && exoPlayerView != null){
-            if(!uri.equals(playerUri) || mExoPlayer == null){
+                                       SimpleExoPlayerView exoPlayerView) {
+        if(context != null && uri != null && exoPlayerView != null) {
+            if(!uri.equals(currentPlayerUri) || mExoPlayer == null) {
                 // Create a new player if the player is null or
                 // we want to play a new video
-                playerUri = uri;
+
                 // Prepare the player with the source.
                 TrackSelection.Factory adaptiveTrackSelectionFactory =
                         new AdaptiveVideoTrackSelection.Factory(BANDWIDTH_METER);
@@ -56,8 +59,7 @@ public class ExoplayerVideoHandler
 
                 mExoPlayer = ExoPlayerFactory.newSimpleInstance(context,
                         new DefaultTrackSelector(adaptiveTrackSelectionFactory), loadControl);
-                mExoPlayer = ExoPlayerFactory.newSimpleInstance(context,
-                        new DefaultTrackSelector(adaptiveTrackSelectionFactory), loadControl);
+
                 exoPlayerView.setPlayer(mExoPlayer);
 
 
@@ -66,11 +68,18 @@ public class ExoplayerVideoHandler
                 MediaSource mediaSource = buildMediaSource(uri);
                 mExoPlayer.prepare(mediaSource);
             }
+
+            if (mCurrentPosition != C.TIME_UNSET && uri.equals(currentPlayerUri)) {
+                mExoPlayer.seekTo(mCurrentPosition);
+            }
+            currentPlayerUri = uri;
+
             mExoPlayer.clearVideoSurface();
             mExoPlayer.setVideoSurfaceView(
                     (SurfaceView)exoPlayerView.getVideoSurfaceView());
-            mExoPlayer.seekTo(mExoPlayer.getCurrentPosition() + 1);
+
             exoPlayerView.setPlayer(mExoPlayer);
+            mExoPlayer.setPlayWhenReady(isPlayerPlaying);
         }
     }
 
@@ -79,18 +88,20 @@ public class ExoplayerVideoHandler
                 new DefaultExtractorsFactory(), null, null);
     }
 
-    public void releaseVideoPlayer(){
-        if(mExoPlayer != null)
-        {
+    public void releaseVideoPlayer() {
+        if (mExoPlayer != null) {
+            isPlayerPlaying = mExoPlayer.getPlayWhenReady();
+            mCurrentPosition = mExoPlayer.getCurrentPosition();
             mExoPlayer.release();
+            mExoPlayer = null;
         }
-        mExoPlayer = null;
     }
 
     public void goToBackground(){
         if(mExoPlayer != null){
             isPlayerPlaying = mExoPlayer.getPlayWhenReady();
-            mExoPlayer.setPlayWhenReady(false);
+            mCurrentPosition = mExoPlayer.getCurrentPosition();
+            mExoPlayer.setPlayWhenReady(isPlayerPlaying);
         }
     }
 

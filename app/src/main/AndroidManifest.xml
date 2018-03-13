@@ -25,9 +25,11 @@
         </activity>
 
         <activity android:name=".Ui.RecipeDetailActivity"
+            android:parentActivityName=".Ui.MainActivity"
             android:launchMode="singleTop"/>
 
-        <activity android:name=".Ui.VideoActivity" />
+        <activity android:name=".Ui.VideoActivity"
+            android:parentActivityName=".Ui.RecipeDetailActivity"/>
 
         <receiver android:name=".Widget.RecipeWidgetProvider">
             <intent-filter>
