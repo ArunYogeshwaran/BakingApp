@@ -2,6 +2,7 @@ package com.ayogeshwaran.bakingapp.Ui.Adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,10 +59,17 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeAdap
 
     @Override
     public void onBindViewHolder(RecipeAdapterViewHolder holder, int position) {
-        Picasso.with(mContext).load(AppConstants.imageURL)
-                .placeholder(mContext.getDrawable(R.drawable.placeholder))
-                .error(mContext.getDrawable(R.drawable.placeholder))
-                .into(holder.recipeImageView);
+        if (TextUtils.isEmpty(mRecipes.get(position).getImage())) {
+            Picasso.with(mContext).load(AppConstants.imageURL)
+                    .placeholder(mContext.getDrawable(R.drawable.placeholder))
+                    .error(mContext.getDrawable(R.drawable.placeholder))
+                    .into(holder.recipeImageView);
+        } else {
+            Picasso.with(mContext).load(mRecipes.get(position).getImage())
+                    .placeholder(mContext.getDrawable(R.drawable.placeholder))
+                    .error(mContext.getDrawable(R.drawable.placeholder))
+                    .into(holder.recipeImageView);
+        }
 
         holder.recipeNameTextView.setText(mRecipes.get(position).getName());
     }

@@ -111,8 +111,6 @@ public class VideoFragment extends Fragment {
                 }
             });
         }
-
-        initializePlayer();
     }
 
     @Override
@@ -130,6 +128,7 @@ public class VideoFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        initializePlayer();
     }
 
     @Override
@@ -139,9 +138,14 @@ public class VideoFragment extends Fragment {
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        ExoplayerVideoHandler.getInstance().releaseVideoPlayer();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
-        ExoplayerVideoHandler.getInstance().releaseVideoPlayer();
     }
 
     public void setStep(Step step) {
